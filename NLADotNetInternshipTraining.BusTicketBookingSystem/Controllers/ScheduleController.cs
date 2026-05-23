@@ -162,16 +162,47 @@ public class SchedulesController : ControllerBase
             seatsPerRow = 3;
         }
 
+        // int seatCount = 1;
+        // char rowLetter = 'A';
+
+        // while (seatCount <= bus.TotalSeats)
+        // {
+        //     for (int i = 1; i <= seatsPerRow; i++)
+        //     {
+        //         if (seatCount > bus.TotalSeats) break;
+
+        //         string seatNumber = $"{rowLetter}{i}";
+
+        //         var newSeat = new Seat
+        //         {
+        //             ScheduleId = scheduleId,
+        //             SeatNumber = seatNumber,
+        //             IsBooked = false,
+        //             BookingId = null,
+        //             CreatedBy = "System-Auto",
+        //             IsDelete = false
+        //         };
+        //         _db.Seats.Add(newSeat);
+        //         seatCount++;
+        //     }
+        //     rowLetter++;
+        // }
+        // 🔥 [ပြင်ဆင်ပြီး Core Logic] ၃၁ ခုံ ပုံသေမဖြစ်တော့ဘဲ ကားရဲ့ ခုံအရေအတွက်အတိုင်း ကွက်တိထွက်မည့်ကုဒ်
+
         int seatCount = 1;
-        char rowLetter = 'A';
+        int currentRowNumber = 1; // တန်းစီနံပါတ်ကို ကိန်းဂဏန်း (1, 2, 3...) နဲ့ပဲ အရင်မှတ်မယ်
 
         while (seatCount <= bus.TotalSeats)
         {
+            // rowLetter ကိုcurrentRowNumber အပေါ်မူတည်ပြီး အလိုအလျောက် ပြောင်းခိုင်းမယ်
+            // 1 ဆိုရင် 'A', 2 ဆိုရင် 'B', 3 ဆိုရင် 'C' စသဖြင့်ပေါ့ဗျာ
+            char rowLetter = (char)('A' + (currentRowNumber - 1));
+
             for (int i = 1; i <= seatsPerRow; i++)
             {
                 if (seatCount > bus.TotalSeats) break;
 
-                string seatNumber = $"{rowLetter}{i}";
+                string seatNumber = $"{rowLetter}{i}"; // ထွက်လာမယ့်ပုံစံ - A1, A2, B1, B2...
 
                 var newSeat = new Seat
                 {
@@ -185,7 +216,8 @@ public class SchedulesController : ControllerBase
                 _db.Seats.Add(newSeat);
                 seatCount++;
             }
-            rowLetter++;
+
+            currentRowNumber++; // နောက်တစ်တန်းကို ကူးမယ် (ဥပမာ- Row 1 ကနေ Row 2 ကို ကူးတာမျိုး)
         }
 
         int result = _db.SaveChanges();
@@ -214,7 +246,7 @@ public class SchedulesController : ControllerBase
 
         item.ModifiedBy = request.ModifiedBy ?? "Admin-Modifier";
         item.ModifiedAt = DateTime.Now;
-        
+
 
         try
         {
