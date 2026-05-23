@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NLADotNetInternshipTraining.BusTicketBookingSystem.Database", "NLADotNetInternshipTraining.BusTicketBookingSystem.Database\NLADotNetInternshipTraining.BusTicketBookingSystem.Database.csproj", "{43BB47F3-5B4C-473B-821D-BCB7291E535C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NLADotNetInternshipTraining.BusTicketBookingSystem", "NLADotNetInternshipTraining.BusTicketBookingSystem\NLADotNetInternshipTraining.BusTicketBookingSystem.csproj", "{360B0F8C-E505-4433-B369-0372339D29E1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{43BB47F3-5B4C-473B-821D-BCB7291E535C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43BB47F3-5B4C-473B-821D-BCB7291E535C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43BB47F3-5B4C-473B-821D-BCB7291E535C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43BB47F3-5B4C-473B-821D-BCB7291E535C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{360B0F8C-E505-4433-B369-0372339D29E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{360B0F8C-E505-4433-B369-0372339D29E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{360B0F8C-E505-4433-B369-0372339D29E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{360B0F8C-E505-4433-B369-0372339D29E1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

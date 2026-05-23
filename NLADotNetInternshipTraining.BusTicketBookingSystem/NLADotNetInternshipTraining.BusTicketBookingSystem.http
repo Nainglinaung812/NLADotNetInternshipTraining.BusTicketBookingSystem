@@ -1,0 +1,6 @@
+@NLADotNetInternshipTraining.BusTicketBookingSystem_HostAddress = http://localhost:5014
+
+GET {{NLADotNetInternshipTraining.BusTicketBookingSystem_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
