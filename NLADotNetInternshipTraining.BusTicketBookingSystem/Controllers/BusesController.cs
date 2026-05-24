@@ -13,7 +13,7 @@ public class BusesController : ControllerBase
 
 
 
-    // ၁။ GET: api/Buses (အသုံးပြုနေဆဲ ကားစာရင်းအားလုံး ထုတ်ပြရန်)
+
     [HttpGet]
     public IActionResult GetBuses()
     {
@@ -35,7 +35,7 @@ public class BusesController : ControllerBase
         return Ok(lst);
     }
 
-    // ၂။ GET: api/Buses/{id} (ကားတစ်စီးချင်းစီ၏ Specifications ကို ကြည့်ရန်)
+
     [HttpGet("{id}")]
     public IActionResult GetBus(Guid id)
     {
@@ -60,18 +60,17 @@ public class BusesController : ControllerBase
         return Ok(busData);
     }
 
-    // ၃။ POST: api/Buses (ကားအသစ်စာရင်းသွင်းရန်)
     [HttpPost]
     public IActionResult CreateBus(BusCreateRequestModel request)
     {
-        // ကားနံပါတ် တူနေရင် ပေးမသွင်းဘဲ ကာကွယ်ရန် (Unique Validation)
+
         var isDuplicate = _db.Buses.Any(x => x.BusNumber == request.BusNumber && x.IsDelete == false);
         if (isDuplicate)
         {
             return BadRequest(new BusCreateResponseModel { IsSuccess = false, Message = "ဒီကားနံပါတ်က စနစ်ထဲမှာ ရှိနေပြီးသား ဖြစ်ပါတယ်ဗျာ။" });
         }
 
-        // Entity Framework Core Model က အနည်းကိန်း 'Bus' ဖြစ်နေတာ သတိပြုပါ ညီလေး
+
         var newBus = new Bus
         {
             Id = Guid.NewGuid(),
@@ -88,18 +87,17 @@ public class BusesController : ControllerBase
         return StatusCode(201, new BusCreateResponseModel
         {
             IsSuccess = result > 0,
-            Message = result > 0 ? "Saving Bus Successful" : "Saving Bus Failed"
+            Message = result > 0 ? "ကားအချက်အလက်ကို အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ။" : "ကားအချက်အလက် သိမ်းဆည်းမှု မအောင်မြင်ပါ။"
         });
     }
 
-    // ၄။ PUT: api/Buses/{id} (ကားအချက်အလက်အားလုံးကို အစအဆုံး အစားထိုးပြင်ရန်)
     [HttpPut("{id}")]
     public IActionResult UpdateBus(Guid id, BusUpdateRequestModel request)
     {
         var item = _db.Buses.FirstOrDefault(x => x.Id == id && x.IsDelete == false);
         if (item is null)
         {
-            return NotFound(new BusUpdateResponseModel { IsSuccess = false, Message = "Bus not found" });
+            return NotFound(new BusUpdateResponseModel { IsSuccess = false, Message = "ပြုပြင်လိုသော အဝေးပြေးကားကို စနစ်ထဲမှာ ရှာမတွေ့ပါဗျာ။" });
         }
 
         item.BusNumber = request.BusNumber;
@@ -113,7 +111,7 @@ public class BusesController : ControllerBase
         return Ok(new BusUpdateResponseModel
         {
             IsSuccess = result > 0,
-            Message = result > 0 ? "Bus Update Successfully" : "Bus Update Failed",
+            Message = result > 0 ? "ကားအချက်အလက်ကို အောင်မြင်စွာ ပြုပြင်မွမ်းမံပြီးပါပြီ။" : "ကားအချက်အလက် ပြုပြင်မွမ်းမံမှု မအောင်မြင်ပါ။",
             Data = new BusModel
             {
                 Id = item.Id,
@@ -128,14 +126,13 @@ public class BusesController : ControllerBase
         });
     }
 
-    // ၅။ PATCH: api/Buses/{id} (ကားနံပါတ် သို့မဟုတ် Specification တစ်ခုတည်းကို ကွက်တိပြင်ရန်)
     [HttpPatch("{id}")]
     public IActionResult PatchBus(Guid id, BusPatchRequestModel request)
     {
         var item = _db.Buses.FirstOrDefault(x => x.Id == id && x.IsDelete == false);
         if (item is null)
         {
-            return NotFound(new BusPatchResponseModel { IsSuccess = false, Message = "Bus not found" });
+            return NotFound(new BusPatchResponseModel { IsSuccess = false, Message = "ပြုပြင်လိုသော အဝေးပြေးကားကို စနစ်ထဲမှာ ရှာမတွေ့ပါဗျာ။" });
         }
 
         int count = 0;
@@ -157,7 +154,7 @@ public class BusesController : ControllerBase
 
         if (count == 0)
         {
-            return BadRequest(new BusPatchResponseModel { IsSuccess = false, Message = "No fields need to update" });
+            return BadRequest(new BusPatchResponseModel { IsSuccess = false, Message = "ပြုပြင်မွမ်းမံရန်အတွက် မည်သည့်အချက်အလက်မှ ထည့်သွင်းထားခြင်းမရှိပါဗျာ။" });
         }
 
         item.ModifiedBy = request.ModifiedBy ?? "Admin-Patch-User";
@@ -168,7 +165,7 @@ public class BusesController : ControllerBase
         return Ok(new BusPatchResponseModel
         {
             IsSuccess = result > 0,
-            Message = result > 0 ? "Bus Patch Successfully" : "Bus Patch Failed",
+            Message = result > 0 ? "ကားအချက်အလက်ကို ကွက်တိ အောင်မြင်စွာ ပြုပြင်မွမ်းမံပြီးပါပြီ။" : "ကားအချက်အလက် ကွက်တိပြုပြင်မွမ်းမံမှု မအောင်မြင်ပါ။",
             Data = new BusModel
             {
                 Id = item.Id,
@@ -183,14 +180,14 @@ public class BusesController : ControllerBase
         });
     }
 
-    // ၆။ DELETE: api/Buses/{id} (ကားအိုကြီးများကို Soft Delete လုပ်ရန်)
+
     [HttpDelete("{id}")]
     public IActionResult DeleteBus(Guid id, BusDeleteRequestModel request)
     {
         var item = _db.Buses.FirstOrDefault(x => x.Id == id && x.IsDelete == false);
         if (item is null)
         {
-            return NotFound(new BusDeleteResponseModel { IsSuccess = false, Message = "Bus not found or already deleted" });
+            return NotFound(new BusDeleteResponseModel { IsSuccess = false, Message = "သတ်မှတ်ထားသော အဝေးပြေးကားကို စနစ်ထဲမှာ ရှာမတွေ့ပါ သို့မဟုတ် ဖျက်သိမ်းပြီးသား ဖြစ်နေပါတယ်ဗျာ။" });
         }
 
         item.IsDelete = true;
@@ -202,7 +199,7 @@ public class BusesController : ControllerBase
         return Ok(new BusDeleteResponseModel
         {
             IsSuccess = result > 0,
-            Message = result > 0 ? "Bus Soft-Deleted Successfully" : "Bus Soft-Delete Failed"
+            Message = result > 0 ? "ကားအချက်အလက်ကို စနစ်ထဲမှ အောင်မြင်စွာ ဖျက်သိမ်းပြီးပါပြီ။" : "ကားအချက်အလက် ဖျက်သိမ်းမှု မအောင်မြင်ပါ။"
         });
     }
 }

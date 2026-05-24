@@ -11,13 +11,11 @@ public class BookingsController : ControllerBase
 {
     private readonly AppDbContext _db = new AppDbContext();
 
-    // ===================================================================
-    // ၁။ GET: api/Bookings (ဝယ်ယူထားသည့် ဘောင်ချာမှတ်တမ်းအားလုံး ကြည့်ရန်)
-    // ===================================================================
+
     [HttpGet]
     public IActionResult GetBookings()
     {
-        // Include(b => b.Seats) ကိုသုံးပြီး ဘောင်ချာနဲ့တွဲရက် ခုံတွေကိုပါ ဆွဲထုတ်မယ်
+
         var bookings = _db.Bookings
             .Include(b => b.Seats)
             .Where(b => b.IsDelete == false)
@@ -29,7 +27,7 @@ public class BookingsController : ControllerBase
                 TotalPrice = b.TotalPrice,
                 BookingDate = Convert.ToDateTime(b.BookingDate),
                 CreatedBy = b.CreatedBy,
-                // ဒီ Booking ID နဲ့ ငြိနေတဲ့ ခုံနံပါတ်တွေကိုပဲ စစ်ထုတ်ပြီး List ဖွဲ့ပြမယ်
+
                 BookedSeats = b.Seats.Select(s => s.SeatNumber).ToList()
             })
             .ToList();
@@ -37,9 +35,7 @@ public class BookingsController : ControllerBase
         return Ok(bookings);
     }
 
-    // ===================================================================
-    // ၂။ GET: api/Bookings/{id} (ဘောင်ချာ ID ဖြင့် သီးသန့် တစ်စောင်ချင်းစီ ရှာကြည့်ရန်)
-    // ===================================================================
+
     [HttpGet("{id}")]
     public IActionResult GetBooking(Guid id)
     {
@@ -49,7 +45,7 @@ public class BookingsController : ControllerBase
 
         if (booking == null)
         {
-            return NotFound("your requesting (Voucher) do not found");
+            return NotFound("သင်ရှာဖွေနေသော ကားလက်မှတ်ဝယ်ယူမှုမှတ်တမ်း (Voucher) ကို စနစ်ထဲမှာ ရှာမတွေ့ပါဗျာ။");
         }
 
         var result = new BookingModel
@@ -66,20 +62,18 @@ public class BookingsController : ControllerBase
         return Ok(result);
     }
 
-    // ===================================================================
-    // ၃။ POST: api/Bookings (လက်မှတ်ဝယ်ယူခြင်း Core Transaction API)
-    // ===================================================================
+
 
     [HttpPost]
     public IActionResult CreateBooking(BookingCreateRequestModel request)
     {
-        // ၁။ Validation: ခုံနံပါတ် ပါ/မပါ အရင်စစ်မယ်
+
         if (request.SeatNumbers == null || !request.SeatNumbers.Any())
         {
-            return BadRequest(new BookingResponseModel { IsSuccess = false, Message = "Please choose at least one seat." });
+            return BadRequest(new BookingResponseModel { IsSuccess = false, Message = "ကျေးဇူးပြု၍ အနည်းဆုံး ကားခုံတစ်ခုံ ရွေးချယ်ပေးပါဗျာ။" });
         }
 
-        // ၂။ 🔥 [အဓိကအကွက်] မြို့အမည်များနှင့် ကားနံပါတ်ကို သုံးပြီး နောက်ကွယ်ကနေ Schedule ID ကို လှမ်းရှာခြင်း
+
         var schedule = _db.Schedules
             .Include(s => s.Route)
             .Include(s => s.Bus)
@@ -88,7 +82,7 @@ public class BookingsController : ControllerBase
                               && s.Route.ArrivalStation.Contains(request.ArrivalStation)
                               && s.Bus.BusNumber == request.BusNumber);
 
-        // အကယ်၍ ရှာမတွေ့ရင် စမတ်ကျကျ Error ပြန်ထုတ်ပေးမယ်
+
         if (schedule == null)
         {
             return BadRequest(new BookingResponseModel
@@ -98,15 +92,15 @@ public class BookingsController : ControllerBase
             });
         }
 
-        // ၃။ ရှာတွေ့ထားတဲ့ schedule ရဲ့ လက်မှတ်ဈေးနှုန်းနဲ့ စုစုပေါင်း ကျသင့်ငွေ တွက်ချက်ခြင်း
+
         decimal totalAmount = request.SeatNumbers.Count * schedule.TicketPrice;
 
-        // ၄။ Database Transaction စတင် အသုံးပြုခြင်း
+
         using var transaction = _db.Database.BeginTransaction();
 
         try
         {
-            // (က) ပင်မ Voucher (Booking) သိမ်းဆည်းခြင်း
+
             var bookingId = Guid.NewGuid();
             var newBooking = new Booking
             {
@@ -120,25 +114,24 @@ public class BookingsController : ControllerBase
             };
             _db.Bookings.Add(newBooking);
 
-            // (ခ) ရှာတွေ့ထားတဲ့ schedule.Id အောက်က ခုံတွေကို Loop ပတ် စစ်ဆေး/Update လုပ်ခြင်း
             foreach (var seatNo in request.SeatNumbers)
             {
-                // 💡 schedule.Id ကို သုံးပြီး ကွက်တိ ရှာသွားပါတယ်
+
                 var seat = _db.Seats.FirstOrDefault(s => s.ScheduleId == schedule.Id
                                                       && s.SeatNumber == seatNo
                                                       && s.IsDelete == false);
 
                 if (seat == null)
                 {
-                    return BadRequest(new BookingResponseModel { IsSuccess = false, Message = $"Seat number ({seatNo}) does not exist for this route." });
+                    return BadRequest(new BookingResponseModel { IsSuccess = false, Message = $"ရွေးချယ်ထားသော ခုံနံပါတ် ({seatNo}) သည် ဤခရီးစဉ်လမ်းကြောင်းပေါ်တွင် မရှိပါဗျာ။" });
                 }
 
                 if (seat.IsBooked)
                 {
-                    return BadRequest(new BookingResponseModel { IsSuccess = false, Message = $"Sorry, seat number ({seatNo}) is already sold out." });
+                    return BadRequest(new BookingResponseModel { IsSuccess = false, Message = $"စိတ်မကောင်းပါဘူးဗျာ... ခုံနံပါတ် ({seatNo}) ကတော့ တခြားသူ ဝယ်ယူသွားလို့ လက်မှတ်ကုန်သွားပါပြီ။" });
                 }
 
-                // ခုံကို ဝယ်ပြီးကြောင်း အမှတ်အသားလုပ်ပြီး BookingId ချိတ်မယ်
+
                 seat.IsBooked = true;
                 seat.BookingId = bookingId;
                 seat.ModifiedBy = request.CreatedBy ?? "Passenger-Self";
@@ -146,7 +139,7 @@ public class BookingsController : ControllerBase
             }
 
             _db.SaveChanges();
-            transaction.Commit(); // အားလုံး အောင်မြင်မှ ဒေတာဘေ့စ်ထဲ တကယ် သိမ်းမယ်
+            transaction.Commit();
 
             return StatusCode(201, new BookingResponseModel
             {
@@ -157,8 +150,8 @@ public class BookingsController : ControllerBase
         }
         catch (Exception ex)
         {
-            transaction.Rollback(); // Error တက်ရင် နဂိုအတိုင်း ပြန်ဆုတ်မယ်
-            return StatusCode(500, new { isSuccess = false, message = "Your ticket purchase failed and transaction was rolled back.", error = ex.Message });
+            transaction.Rollback();
+            return StatusCode(500, new { isSuccess = false, message = "လက်မှတ်ဝယ်ယူမှု မအောင်မြင်ပါသဖြင့် စနစ်မှ ငွေပေးချေမှုကို ပယ်ဖျက်ပြီး မူလအတိုင်း ပြန်လည်ပြင်ဆင်ပေးလိုက်ပါပြီ။", error = ex.Message });
         }
     }
 }

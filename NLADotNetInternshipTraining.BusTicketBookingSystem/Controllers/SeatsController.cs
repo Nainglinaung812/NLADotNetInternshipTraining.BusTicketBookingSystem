@@ -6,15 +6,12 @@ namespace NLADotNetInternshipTraining.WebApi.Controllers;
 
 [ApiController]
 // 🔥 Route ကို api/Bus/Seats ဖြစ်သွားအောင် ဒီလို ပြောင်းလိုက်ပါတယ်ဗျာ
-[Route("api/Bus/[controller]")] 
+[Route("api/Bus/[controller]")]
 public class SeatsController : ControllerBase
 {
     private readonly AppDbContext _db = new AppDbContext();
 
-    // ===================================================================
-    // ၁။ GET: api/Bus/Seats/schedule/{scheduleId} 
-    // (ခရီးစဉ်တစ်ခုလုံး၏ ခုံ Layout အားလုံး - ဝယ်ပြီး/မဝယ်ရသေး ပြရန်)
-    // ===================================================================
+
     [HttpGet("schedule/{scheduleId}")]
     public IActionResult GetSeatsBySchedule(Guid scheduleId)
     {
@@ -27,6 +24,7 @@ public class SeatsController : ControllerBase
                 SeatNumber = s.SeatNumber,
                 IsBooked = s.IsBooked,
                 BookingId = s.BookingId
+
             })
             .ToList();
 

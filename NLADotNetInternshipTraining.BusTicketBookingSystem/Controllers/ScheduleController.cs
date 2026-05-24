@@ -12,13 +12,12 @@ public class SchedulesController : ControllerBase
 {
     private readonly AppDbContext _db = new AppDbContext();
 
-    // ၁။ GET: api/Schedules (ခရီးစဉ်အချိန်စာရင်းအားလုံး ပြရန် - Bus ရော Route ပါ တွဲပြထားသည်)
     [HttpGet]
     public IActionResult GetSchedules()
     {
         var lst = _db.Schedules
-            .Include(s => s.Bus)    // 🔥 Bus Table ကို ချိတ်ဆက်ဆွဲယူခြင်း
-            .Include(s => s.Route)  // 🔥 Route Table ကို ချိတ်ဆက်ဆွဲယူခြင်း
+            .Include(s => s.Bus)    
+            .Include(s => s.Route)  
             .Where(x => x.IsDelete == false)
             .Select(x => new ScheduleModel
             {
@@ -32,11 +31,10 @@ public class SchedulesController : ControllerBase
                 ModifiedBy = x.ModifiedBy,
                 ModifiedAt = x.ModifiedAt,
 
-                // 🚌 Bus Information
+               
                 BusNumber = x.Bus.BusNumber,
                 BusType = x.Bus.BusType,
 
-                // 🗺️ Route Information
                 DepartureStation = x.Route.DepartureStation,
                 ArrivalStation = x.Route.ArrivalStation,
                 DistanceKM = x.Route.DistanceKm
@@ -46,18 +44,17 @@ public class SchedulesController : ControllerBase
         return Ok(lst);
     }
 
-    // ၂။ GET: api/Schedules/{id} (သီးသန့် ခရီးစဉ်တစ်ခုကို ကြည့်ရန် - Bus ရော Route ပါ တွဲပြထားသည်)
     [HttpGet("{id}")]
     public IActionResult GetSchedule(Guid id)
     {
         var item = _db.Schedules
-            .Include(s => s.Bus)   // 🔥 Bus Table ကို Join ထားခြင်း
-            .Include(s => s.Route) // 🔥 Route Table ကို Join ထားခြင်း
+            .Include(s => s.Bus)   
+            .Include(s => s.Route) 
             .FirstOrDefault(x => x.Id == id && x.IsDelete == false);
 
         if (item is null)
         {
-            return NotFound("No schedule data found");
+            return NotFound("ရွေးချယ်ထားသော ကားထွက်မည့်အချိန်စာရင်းကို စနစ်ထဲမှာ ရှာမတွေ့ပါဗျာ။");
         }
 
         var scheduleData = new ScheduleModel
@@ -72,11 +69,11 @@ public class SchedulesController : ControllerBase
             ModifiedBy = item.ModifiedBy,
             ModifiedAt = item.ModifiedAt,
 
-            // 🚌 Bus Information
+           
             BusNumber = item.Bus.BusNumber,
             BusType = item.Bus.BusType,
 
-            // 🗺️ Route Information
+           
             DepartureStation = item.Route.DepartureStation,
             ArrivalStation = item.Route.ArrivalStation,
             DistanceKM = item.Route.DistanceKm
@@ -85,7 +82,6 @@ public class SchedulesController : ControllerBase
         return Ok(scheduleData);
     }
 
-    // ၃။ GET: api/Schedules/search?from=Yangon&to=Mandalay (ရှာဖွေခြင်း - Bus ရော Route ပါ တွဲပြထားသည်)
     [HttpGet("search")]
     public IActionResult SearchSchedules([FromQuery] string from, [FromQuery] string to)
     {
@@ -95,8 +91,8 @@ public class SchedulesController : ControllerBase
         }
 
         var searchResult = _db.Schedules
-            .Include(s => s.Bus)   // 🔥 Bus Table ကိုပါ Join ခေါ်ယူခြင်း
-            .Include(s => s.Route) // 🔥 Route Table ကိုပါ Join ခေါ်ယူခြင်း
+            .Include(s => s.Bus)   
+            .Include(s => s.Route) 
             .Where(s => s.IsDelete == false
                      && s.Route.DepartureStation.Contains(from)
                      && s.Route.ArrivalStation.Contains(to))
@@ -112,11 +108,10 @@ public class SchedulesController : ControllerBase
                 ModifiedBy = x.ModifiedBy,
                 ModifiedAt = x.ModifiedAt,
 
-                // 🚌 Bus Information
+               
                 BusNumber = x.Bus.BusNumber,
                 BusType = x.Bus.BusType,
 
-                // 🗺️ Route Information
                 DepartureStation = x.Route.DepartureStation,
                 ArrivalStation = x.Route.ArrivalStation,
                 DistanceKM = x.Route.DistanceKm
@@ -126,20 +121,19 @@ public class SchedulesController : ControllerBase
         return Ok(searchResult);
     }
 
-    // ၄။ POST: api/Schedules (ခရီးစဉ်အသစ်ဆောက်သည်နှင့် ကားခုံများပါ Auto ကြိုဆောက်ပေးမည့်နေရာ)
     [HttpPost]
     public IActionResult CreateSchedule(ScheduleCreateRequestModel request)
     {
         var bus = _db.Buses.FirstOrDefault(b => b.Id == request.BusId && b.IsDelete == false);
         if (bus == null)
         {
-            return BadRequest(new ScheduleCreateResponseModel { IsSuccess = false, Message = "choosing car id not found" });
+            return BadRequest(new ScheduleCreateResponseModel { IsSuccess = false, Message = "ရွေးချယ်လိုက်သော အဝေးပြေးကား ID ကို စနစ်ထဲမှာ ရှာမတွေ့ပါဗျာ။" });
         }
 
         var routeExists = _db.Routes.Any(r => r.Id == request.RouteId && r.IsDelete == false);
         if (!routeExists)
         {
-            return BadRequest(new ScheduleCreateResponseModel { IsSuccess = false, Message = "choosing car routes not found" });
+            return BadRequest(new ScheduleCreateResponseModel { IsSuccess = false, Message = "ရွေးချယ်လိုက်သော ခရီးစဉ်လမ်းကြောင်း ID ကို စနစ်ထဲမှာ ရှာမတွေ့ပါဗျာ။" });
         }
 
         var scheduleId = Guid.NewGuid();
@@ -187,22 +181,20 @@ public class SchedulesController : ControllerBase
         //     }
         //     rowLetter++;
         // }
-        // 🔥 [ပြင်ဆင်ပြီး Core Logic] ၃၁ ခုံ ပုံသေမဖြစ်တော့ဘဲ ကားရဲ့ ခုံအရေအတွက်အတိုင်း ကွက်တိထွက်မည့်ကုဒ်
 
         int seatCount = 1;
-        int currentRowNumber = 1; // တန်းစီနံပါတ်ကို ကိန်းဂဏန်း (1, 2, 3...) နဲ့ပဲ အရင်မှတ်မယ်
+        int currentRowNumber = 1; 
 
         while (seatCount <= bus.TotalSeats)
         {
-            // rowLetter ကိုcurrentRowNumber အပေါ်မူတည်ပြီး အလိုအလျောက် ပြောင်းခိုင်းမယ်
-            // 1 ဆိုရင် 'A', 2 ဆိုရင် 'B', 3 ဆိုရင် 'C' စသဖြင့်ပေါ့ဗျာ
+            
             char rowLetter = (char)('A' + (currentRowNumber - 1));
 
             for (int i = 1; i <= seatsPerRow; i++)
             {
                 if (seatCount > bus.TotalSeats) break;
 
-                string seatNumber = $"{rowLetter}{i}"; // ထွက်လာမယ့်ပုံစံ - A1, A2, B1, B2...
+                string seatNumber = $"{rowLetter}{i}"; 
 
                 var newSeat = new Seat
                 {
@@ -217,7 +209,7 @@ public class SchedulesController : ControllerBase
                 seatCount++;
             }
 
-            currentRowNumber++; // နောက်တစ်တန်းကို ကူးမယ် (ဥပမာ- Row 1 ကနေ Row 2 ကို ကူးတာမျိုး)
+            currentRowNumber++; 
         }
 
         int result = _db.SaveChanges();
@@ -225,18 +217,18 @@ public class SchedulesController : ControllerBase
         return StatusCode(201, new ScheduleCreateResponseModel
         {
             IsSuccess = result > 0,
-            Message = result > 0 ? $"saving Schedule successfully ({bus.TotalSeats})" : "Saving Schedule Failed"
+            Message = result > 0 ? $"ကားထွက်မည့် အချိန်စာရင်းနှင့် ကားခုံ အရေအတွက် ({bus.TotalSeats}) ခုကို အောင်မြင်စွာ ဖန်တီးပြီးပါပြီ။" : "အချိန်စာရင်း ဖန်တီးမှု မအောင်မြင်ပါ။"
         });
     }
 
-    // ၅။ PUT: api/Schedules/{id} (ခရီးစဉ်တစ်ခုလုံးကို အစားထိုးပြင်ရန်)
+    
     [HttpPut("{id}")]
     public IActionResult UpdateSchedule(Guid id, ScheduleUpdateRequestModel request)
     {
         var item = _db.Schedules.FirstOrDefault(x => x.Id == id && x.IsDelete == false);
         if (item is null)
         {
-            return NotFound(new ScheduleUpdateResponseModel { IsSuccess = false, Message = "Schedule not found" });
+            return NotFound(new ScheduleUpdateResponseModel { IsSuccess = false, Message = "ပြုပြင်လိုသော ကားထွက်မည့်အချိန်စာရင်းကို စနစ်ထဲမှာ ရှာမတွေ့ပါဗျာ။" });
         }
 
         item.RouteId = request.RouteId;
@@ -255,7 +247,7 @@ public class SchedulesController : ControllerBase
             return Ok(new ScheduleUpdateResponseModel
             {
                 IsSuccess = result > 0,
-                Message = result > 0 ? "Schedule Update Successfully" : "Schedule Update Failed",
+                Message = result > 0 ? "ကားထွက်မည့် အချိန်စာရင်းကို အောင်မြင်စွာ ပြုပြင်မွမ်းမံပြီးပါပြီ။" : "အချိန်စာရင်း ပြုပြင်မွမ်းမံမှု မအောင်မြင်ပါ။",
                 Data = new ScheduleModel
                 {
                     Id = item.Id,
@@ -276,14 +268,14 @@ public class SchedulesController : ControllerBase
         }
     }
 
-    // ၆။ PATCH: api/Schedules/{id} (လက်မှတ်ဈေးနှုန်း သို့မဟုတ် ကားထွက်ချိန်တစ်ခုတည်းကို ကွက်တိပြင်ရန်)
+    
     [HttpPatch("{id}")]
     public IActionResult PatchSchedule(Guid id, SchedulePatchRequestModel request)
     {
         var item = _db.Schedules.FirstOrDefault(x => x.Id == id && x.IsDelete == false);
         if (item is null)
         {
-            return NotFound(new SchedulePatchResponseModel { IsSuccess = false, Message = "Schedule not found" });
+            return NotFound(new SchedulePatchResponseModel { IsSuccess = false, Message = "ပြုပြင်လိုသော ကားထွက်မည့်အချိန်စာရင်းကို စနစ်ထဲမှာ ရှာမတွေ့ပါဗျာ။" });
         }
 
         int count = 0;
@@ -294,7 +286,7 @@ public class SchedulesController : ControllerBase
 
         if (count == 0)
         {
-            return BadRequest(new SchedulePatchResponseModel { IsSuccess = false, Message = "No fields need to update" });
+            return BadRequest(new SchedulePatchResponseModel { IsSuccess = false, Message = "ပြုပြင်မွမ်းမံရန်အတွက် မည်သည့်အချက်အလက်မှ ထည့်သွင်းထားခြင်းမရှိပါဗျာ။" });
         }
 
         item.ModifiedBy = request.ModifiedBy ?? "Admin-Patch-User";
@@ -305,7 +297,7 @@ public class SchedulesController : ControllerBase
         return Ok(new SchedulePatchResponseModel
         {
             IsSuccess = result > 0,
-            Message = result > 0 ? "Schedule Patch Successfully" : "Schedule Patch Failed",
+            Message = result > 0 ? "ကားထွက်မည့် အချိန်စာရင်းကို ကွက်တိ အောင်မြင်စွာ ပြုပြင်မွမ်းမံပြီးပါပြီ။" : "အချိန်စာရင်း ကွက်တိပြုပြင်မွမ်းမံမှု မအောင်မြင်ပါ။",
             Data = new ScheduleModel
             {
                 Id = item.Id,
@@ -321,14 +313,14 @@ public class SchedulesController : ControllerBase
         });
     }
 
-    // ၇။ DELETE: api/Schedules/{id} (ခရီးစဉ် ဖျက်သိမ်းခြင်း - Soft Delete)
+   
     [HttpDelete("{id}")]
     public IActionResult DeleteSchedule(Guid id, ScheduleDeleteRequestModel request)
     {
         var item = _db.Schedules.FirstOrDefault(x => x.Id == id && x.IsDelete == false);
         if (item is null)
         {
-            return NotFound(new ScheduleDeleteResponseModel { IsSuccess = false, Message = "Schedule not found or already deleted" });
+            return NotFound(new ScheduleDeleteResponseModel { IsSuccess = false, Message = "ရွေးချယ်ထားသော ကားထွက်မည့်အချိန်စာရင်းကို စနစ်ထဲမှာ ရှာမတွေ့ပါ သို့မဟုတ် ဖျက်သိမ်းပြီးသား ဖြစ်နေပါတယ်ဗျာ။" });
         }
 
         item.IsDelete = true;
@@ -340,7 +332,7 @@ public class SchedulesController : ControllerBase
         return Ok(new ScheduleDeleteResponseModel
         {
             IsSuccess = result > 0,
-            Message = result > 0 ? "Schedule Soft-Deleted Successfully" : "Schedule Soft-Delete Failed"
+            Message = result > 0 ? "ကားထွက်မည့် အချိန်စာရင်းကို စနစ်ထဲမှ အောင်မြင်စွာ ဖျက်သိမ်းပြီးပါပြီ။" : "အချိန်စာရင်း ဖျက်သိမ်းမှု မအောင်မြင်ပါ။"
         });
     }
 }
