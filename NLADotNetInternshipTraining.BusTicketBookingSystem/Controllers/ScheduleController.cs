@@ -2,23 +2,21 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NLADotNetInternshipTraining.BusTicketBookingSystem.Database.AppDbContextModels;
 using NLADotNetInternshipTraining.BusTicketBookingSystem.Models;
-
-
 namespace NLADotNetInternshipTraining.BusTicketBookingSystem.Controllers;
-
 [ApiController]
 [Route("api/[controller]")]
 public class SchedulesController : ControllerBase
 {
     private readonly AppDbContext _db = new AppDbContext();
-
     [HttpGet]
     public IActionResult GetSchedules()
     {
         var lst = _db.Schedules
             .Include(s => s.Bus)
             .Include(s => s.Route)
-            .Where(x => x.IsDelete == false)
+            .Where(x => x.IsDelete == false
+                     && x.Bus.IsDelete == false
+                     && x.Route.IsDelete == false)
             .Select(x => new ScheduleModel
             {
                 Id = x.Id,
@@ -30,54 +28,61 @@ public class SchedulesController : ControllerBase
                 CreatedAt = Convert.ToDateTime(x.CreatedAt),
                 ModifiedBy = x.ModifiedBy,
                 ModifiedAt = x.ModifiedAt,
-
-
                 BusNumber = x.Bus.BusNumber,
                 BusType = x.Bus.BusType,
-
                 DepartureStation = x.Route.DepartureStation,
                 ArrivalStation = x.Route.ArrivalStation,
-                DistanceKM = x.Route.DistanceKm
+                DistanceKM = x.Route.DistanceKm,
+                TotalSeatsCount = _db.Seats.Count(s => s.ScheduleId == x.Id && s.IsDelete == false),
+                BookedSeatsCount = _db.Seats.Count(s => s.ScheduleId == x.Id && s.IsBooked == true && s.IsDelete == false),
+                AvailableSeatsCount = _db.Seats.Count(s => s.ScheduleId == x.Id && s.IsBooked == false && s.IsDelete == false)
             })
             .ToList();
+        if (lst == null || !lst.Any())
+        {
+            return NotFound("ကားထွက်မည့်အချိန်စာရင်းများကို စနစ်ထဲမှာ ရှာမတွေ့ပါ သို့မဟုတ် ကား/လမ်းကြောင်းကို ဖျက်သိမ်းထားပြီး ဖြစ်ပါတယ်ဗျာ။");
+        }
 
         return Ok(lst);
     }
-
+   
     [HttpGet("{id}")]
     public IActionResult GetSchedule(Guid id)
     {
-        var item = _db.Schedules
+        
+        var scheduleData = _db.Schedules
             .Include(s => s.Bus)
             .Include(s => s.Route)
-            .FirstOrDefault(x => x.Id == id && x.IsDelete == false);
+            .Where(x => x.Id == id
+                     && x.IsDelete == false
+                     && x.Bus.IsDelete == false
+                     && x.Route.IsDelete == false)
+            .Select(x => new ScheduleModel
+            {
+                Id = x.Id,
+                RouteId = x.RouteId,
+                BusId = x.BusId,
+                DepartureTime = x.DepartureTime,
+                TicketPrice = x.TicketPrice,
+                CreatedBy = x.CreatedBy,
+                CreatedAt = Convert.ToDateTime(x.CreatedAt),
+                ModifiedBy = x.ModifiedBy,
+                ModifiedAt = x.ModifiedAt,
+                BusNumber = x.Bus.BusNumber,
+                BusType = x.Bus.BusType,
+                DepartureStation = x.Route.DepartureStation,
+                ArrivalStation = x.Route.ArrivalStation,
+                DistanceKM = x.Route.DistanceKm,
+                TotalSeatsCount = _db.Seats.Count(s => s.ScheduleId == x.Id && s.IsDelete == false),
+                BookedSeatsCount = _db.Seats.Count(s => s.ScheduleId == x.Id && s.IsBooked == true && s.IsDelete == false),
+                AvailableSeatsCount = _db.Seats.Count(s => s.ScheduleId == x.Id && s.IsBooked == false && s.IsDelete == false)
+            })
+            .FirstOrDefault();
 
-        if (item is null)
+        if (scheduleData is null)
         {
-            return NotFound("ရွေးချယ်ထားသော ကားထွက်မည့်အချိန်စာရင်းကို စနစ်ထဲမှာ ရှာမတွေ့ပါဗျာ။");
+            return NotFound("ရွေးချယ်ထားသော ကားထွက်မည့်အချိန်စာရင်းကို စနစ်ထဲမှာ ရှာမတွေ့ပါ သို့မဟုတ် ကား/လမ်းကြောင်းကို ဖျက်သိမ်းထားပြီး ဖြစ်ပါတယ်ဗျာ။");
         }
-
-        var scheduleData = new ScheduleModel
-        {
-            Id = item.Id,
-            RouteId = item.RouteId,
-            BusId = item.BusId,
-            DepartureTime = item.DepartureTime,
-            TicketPrice = item.TicketPrice,
-            CreatedBy = item.CreatedBy,
-            CreatedAt = Convert.ToDateTime(item.CreatedAt),
-            ModifiedBy = item.ModifiedBy,
-            ModifiedAt = item.ModifiedAt,
-
-
-            BusNumber = item.Bus.BusNumber,
-            BusType = item.Bus.BusType,
-
-
-            DepartureStation = item.Route.DepartureStation,
-            ArrivalStation = item.Route.ArrivalStation,
-            DistanceKM = item.Route.DistanceKm
-        };
 
         return Ok(scheduleData);
     }
@@ -107,14 +112,14 @@ public class SchedulesController : ControllerBase
                 CreatedAt = Convert.ToDateTime(x.CreatedAt),
                 ModifiedBy = x.ModifiedBy,
                 ModifiedAt = x.ModifiedAt,
-
-
                 BusNumber = x.Bus.BusNumber,
                 BusType = x.Bus.BusType,
-
                 DepartureStation = x.Route.DepartureStation,
                 ArrivalStation = x.Route.ArrivalStation,
-                DistanceKM = x.Route.DistanceKm
+                DistanceKM = x.Route.DistanceKm,
+                TotalSeatsCount = _db.Seats.Count(s => s.ScheduleId == x.Id && s.IsDelete == false),
+                BookedSeatsCount = _db.Seats.Count(s => s.ScheduleId == x.Id && s.IsBooked == true && s.IsDelete == false),
+                AvailableSeatsCount = _db.Seats.Count(s => s.ScheduleId == x.Id && s.IsBooked == false && s.IsDelete == false)
             })
             .ToList();
         if (searchResult == null || !searchResult.Any())
@@ -144,7 +149,6 @@ public class SchedulesController : ControllerBase
         {
             return BadRequest(new ScheduleCreateResponseModel { IsSuccess = false, Message = "ရွေးချယ်လိုက်သော ခရီးစဉ်လမ်းကြောင်း ID ကို စနစ်ထဲမှာ ရှာမတွေ့ပါဗျာ။" });
         }
-
         var scheduleId = Guid.NewGuid();
         var newSchedule = new Schedule
         {
@@ -164,33 +168,6 @@ public class SchedulesController : ControllerBase
         {
             seatsPerRow = 3;
         }
-
-        // int seatCount = 1;
-        // char rowLetter = 'A';
-
-        // while (seatCount <= bus.TotalSeats)
-        // {
-        //     for (int i = 1; i <= seatsPerRow; i++)
-        //     {
-        //         if (seatCount > bus.TotalSeats) break;
-
-        //         string seatNumber = $"{rowLetter}{i}";
-
-        //         var newSeat = new Seat
-        //         {
-        //             ScheduleId = scheduleId,
-        //             SeatNumber = seatNumber,
-        //             IsBooked = false,
-        //             BookingId = null,
-        //             CreatedBy = "System-Auto",
-        //             IsDelete = false
-        //         };
-        //         _db.Seats.Add(newSeat);
-        //         seatCount++;
-        //     }
-        //     rowLetter++;
-        // }
-
         int seatCount = 1;
         int currentRowNumber = 1;
 
@@ -244,11 +221,8 @@ public class SchedulesController : ControllerBase
         item.BusId = request.BusId;
         item.DepartureTime = request.DepartureTime;
         item.TicketPrice = request.TicketPrice;
-
         item.ModifiedBy = request.ModifiedBy ?? "Admin-Modifier";
         item.ModifiedAt = DateTime.Now;
-
-
         try
         {
             int result = _db.SaveChanges();

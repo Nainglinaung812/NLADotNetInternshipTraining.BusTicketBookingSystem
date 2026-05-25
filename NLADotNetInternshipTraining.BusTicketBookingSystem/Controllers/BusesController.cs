@@ -1,19 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using NLADotNetInternshipTraining.BusTicketBookingSystem.Database.AppDbContextModels;
 using NLADotNetInternshipTraining.BusTicketBookingSystem.Models;
-
-
 namespace NLADotNetInternshipTraining.BusTicketBookingSystem.Controllers;
-
 [ApiController]
 [Route("api/[controller]")]
 public class BusesController : ControllerBase
 {
     private readonly AppDbContext _db = new AppDbContext();
-
-
-
-
     [HttpGet]
     public IActionResult GetBuses()
     {
@@ -31,10 +24,13 @@ public class BusesController : ControllerBase
                 ModifiedAt = x.ModifiedAt
             })
             .ToList();
+        if (lst is null || !lst.Any())
+        {
+            return NotFound("အဝေးပြေးကားများကို စနစ်ထဲမှာ ရှာမတွေ့ပါ သို့မဟုတ် ဖျက်သိမ်းထားပြီး ဖြစ်ပါတယ်ဗျာ။");
+        }
 
         return Ok(lst);
     }
-
 
     [HttpGet("{id}")]
     public IActionResult GetBus(Guid id)
@@ -69,8 +65,6 @@ public class BusesController : ControllerBase
         {
             return BadRequest(new BusCreateResponseModel { IsSuccess = false, Message = "ဒီကားနံပါတ်က စနစ်ထဲမှာ ရှိနေပြီးသား ဖြစ်ပါတယ်ဗျာ။" });
         }
-
-
         var newBus = new Bus
         {
             Id = Guid.NewGuid(),

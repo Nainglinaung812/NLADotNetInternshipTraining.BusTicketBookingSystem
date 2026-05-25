@@ -1,5 +1,4 @@
 namespace NLADotNetInternshipTraining.BusTicketBookingSystem.Models;
-
 public class RouteModel
 {
     public Guid Id { get; set; }

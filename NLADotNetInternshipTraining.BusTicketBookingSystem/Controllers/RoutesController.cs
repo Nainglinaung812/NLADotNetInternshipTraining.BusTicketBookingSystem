@@ -2,9 +2,7 @@
 using NLADotNetInternshipTraining.BusTicketBookingSystem.Database.AppDbContextModels;
 using NLADotNetInternshipTraining.BusTicketBookingSystem.Models;
 using Route = NLADotNetInternshipTraining.BusTicketBookingSystem.Database.AppDbContextModels.Route;
-
 namespace NLADotNetInternshipTraining.BusTicketBookingSystem.Controllers;
-
 [ApiController]
 [Route("api/[controller]")]
 public class RoutesController : ControllerBase
@@ -28,6 +26,10 @@ public class RoutesController : ControllerBase
                 ModifiedAt = x.ModifiedAt
             })
             .ToList();
+        if (lst == null || !lst.Any())
+        {
+            return NotFound("ခရီးစဉ်လမ်းကြောင်းများကို စနစ်ထဲမှာ ရှာမတွေ့ပါ သို့မဟုတ် ဖျက်သိမ်းထားပြီး ဖြစ်ပါတယ်ဗျာ။");
+        }
 
         return Ok(lst);
     }
@@ -94,8 +96,6 @@ public class RoutesController : ControllerBase
                 Message = "ပြုပြင်လိုသော ခရီးစဉ်လမ်းကြောင်းကို စနစ်ထဲမှာ ရှာမတွေ့ပါဗျာ။"
             });
         }
-
-
         item.DepartureStation = request.DepartureStation;
         item.ArrivalStation = request.ArrivalStation;
         item.DistanceKm = request.DistanceKM;
@@ -161,8 +161,6 @@ public class RoutesController : ControllerBase
                 Message = "ပြုပြင်မွမ်းမံရန်အတွက် မည်သည့်အချက်အလက်မှ ထည့်သွင်းထားခြင်းမရှိပါဗျာ။"
             });
         }
-
-
         item.ModifiedBy = request.ModifiedBy ?? "Admin-Patch-User";
         item.ModifiedAt = DateTime.Now;
 

@@ -11,15 +11,15 @@ public class ScheduleModel
     public DateTime CreatedAt { get; set; }
     public string? ModifiedBy { get; set; }
     public DateTime? ModifiedAt { get; set; }
-
     public string? DepartureStation { get; set; }
     public string? ArrivalStation { get; set; }
     public decimal? DistanceKM { get; set; }
     public string? BusNumber { get; set; }
     public string? BusType { get; set; }
+    public int TotalSeatsCount { get; set; }      
+    public int BookedSeatsCount { get; set; }     
+    public int AvailableSeatsCount { get; set; }
 }
-
-
 public class ScheduleCreateRequestModel
 {
     public Guid RouteId { get; set; }
@@ -43,13 +43,6 @@ public class ScheduleUpdateRequestModel
     public DateTime DepartureTime { get; set; }
     public decimal TicketPrice { get; set; }
     public string? ModifiedBy { get; set; }
-    // public string DepartureStation {get;set;}
-
-    //     "departureStation": null,
-    // "arrivalStation": null,
-    // "distanceKM": null,
-    // "busNumber": null,
-    // "busType": null
 }
 
 public class ScheduleUpdateResponseModel
@@ -91,5 +84,4 @@ public class ScheduleSearchResponseModel
 {
     public bool IsSuccess { get; set; }
     public string Message { get; set; } = null!;
-    // public List<ScheduleModel>? Data { get; set; }
 }
