@@ -1,6 +1,5 @@
 namespace NLADotNetInternshipTraining.BusTicketBookingSystem.Models;
 
-// ပင်မ ဒေတာပြသရန် Model
 public class RouteModel
 {
     public Guid Id { get; set; }
@@ -13,7 +12,6 @@ public class RouteModel
     public DateTime? ModifiedAt { get; set; }
 }
 
-// 1. Create Models
 public class RouteCreateRequestModel
 {
     public string DepartureStation { get; set; } = null!;
@@ -28,7 +26,6 @@ public class RouteCreateResponseModel
     public string Message { get; set; } = null!;
 }
 
-// 2. Update Models
 public class RouteUpdateRequestModel
 {
     public string DepartureStation { get; set; } = null!;
@@ -44,7 +41,6 @@ public class RouteUpdateResponseModel
     public RouteModel? Data { get; set; }
 }
 
-// 3. Patch Models
 public class RoutePatchRequestModel
 {
     public string? DepartureStation { get; set; }
@@ -60,7 +56,6 @@ public class RoutePatchResponseModel
     public RouteModel? Data { get; set; }
 }
 
-// 4. Delete Models
 public class RouteDeleteRequestModel
 {
     public string? DeletedBy { get; set; }

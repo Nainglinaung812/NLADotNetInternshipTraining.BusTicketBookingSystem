@@ -1,6 +1,5 @@
 namespace NLADotNetInternshipTraining.BusTicketBookingSystem.Models;
 
-// ပင်မ ဒေတာပြသရန် Model
 public class ScheduleModel
 {
     public Guid Id { get; set; }
@@ -13,14 +12,14 @@ public class ScheduleModel
     public string? ModifiedBy { get; set; }
     public DateTime? ModifiedAt { get; set; }
 
-    public string? DepartureStation { get; set; } // ဥပမာ- Yangon
-    public string? ArrivalStation { get; set; }   // ဥပမာ- Mandalay
+    public string? DepartureStation { get; set; }
+    public string? ArrivalStation { get; set; }
     public decimal? DistanceKM { get; set; }
-    public string? BusNumber { get; set; }        // ဥပမာ- YGN-VIP-8888
-    public string? BusType { get; set; }          // ဥပမာ- Scania VIP (2+1)
+    public string? BusNumber { get; set; }
+    public string? BusType { get; set; }
 }
 
-// 1. Create Models
+
 public class ScheduleCreateRequestModel
 {
     public Guid RouteId { get; set; }
@@ -36,7 +35,7 @@ public class ScheduleCreateResponseModel
     public string Message { get; set; } = null!;
 }
 
-// 2. Update Models
+
 public class ScheduleUpdateRequestModel
 {
     public Guid RouteId { get; set; }
@@ -60,7 +59,7 @@ public class ScheduleUpdateResponseModel
     public ScheduleModel? Data { get; set; }
 }
 
-// 3. Patch Models
+
 public class SchedulePatchRequestModel
 {
     public Guid? RouteId { get; set; }
@@ -77,7 +76,7 @@ public class SchedulePatchResponseModel
     public ScheduleModel? Data { get; set; }
 }
 
-// 4. Delete Models
+
 public class ScheduleDeleteRequestModel
 {
     public string? DeletedBy { get; set; }

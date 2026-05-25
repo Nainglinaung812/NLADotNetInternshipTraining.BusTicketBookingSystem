@@ -5,7 +5,6 @@ using NLADotNetInternshipTraining.BusTicketBookingSystem.Models;
 namespace NLADotNetInternshipTraining.WebApi.Controllers;
 
 [ApiController]
-// 🔥 Route ကို api/Bus/Seats ဖြစ်သွားအောင် ဒီလို ပြောင်းလိုက်ပါတယ်ဗျာ
 [Route("api/Bus/[controller]")]
 public class SeatsController : ControllerBase
 {
@@ -36,14 +35,10 @@ public class SeatsController : ControllerBase
         return Ok(seats);
     }
 
-    // ===================================================================
-    // ၂။ GET: api/Bus/Seats/available/{scheduleId}
-    // (ခရီးစဉ်အလိုက် မဝယ်ရသေးဘဲ လွတ်နေသည့် ခုံစာရင်း သီးသန့်ပြရန်)
-    // ===================================================================
+
     [HttpGet("available/{scheduleId}")]
     public IActionResult GetAvailableSeats(Guid scheduleId)
     {
-        // 🔥 IsBooked == false ဖြစ်တဲ့ လွတ်နေတဲ့ ခုံတွေကိုပဲ Filter ဖြတ်ထုတ်မယ်
         var availableSeats = _db.Seats
             .Where(s => s.ScheduleId == scheduleId && s.IsBooked == false && s.IsDelete == false)
             .Select(s => new SeatResponseModel
