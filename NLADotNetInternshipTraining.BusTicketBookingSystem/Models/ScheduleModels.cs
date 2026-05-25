@@ -87,3 +87,9 @@ public class ScheduleDeleteResponseModel
     public bool IsSuccess { get; set; }
     public string Message { get; set; } = null!;
 }
+public class ScheduleSearchResponseModel
+{
+    public bool IsSuccess { get; set; }
+    public string Message { get; set; } = null!;
+    // public List<ScheduleModel>? Data { get; set; }
+}

@@ -16,8 +16,8 @@ public class SchedulesController : ControllerBase
     public IActionResult GetSchedules()
     {
         var lst = _db.Schedules
-            .Include(s => s.Bus)    
-            .Include(s => s.Route)  
+            .Include(s => s.Bus)
+            .Include(s => s.Route)
             .Where(x => x.IsDelete == false)
             .Select(x => new ScheduleModel
             {
@@ -31,7 +31,7 @@ public class SchedulesController : ControllerBase
                 ModifiedBy = x.ModifiedBy,
                 ModifiedAt = x.ModifiedAt,
 
-               
+
                 BusNumber = x.Bus.BusNumber,
                 BusType = x.Bus.BusType,
 
@@ -48,8 +48,8 @@ public class SchedulesController : ControllerBase
     public IActionResult GetSchedule(Guid id)
     {
         var item = _db.Schedules
-            .Include(s => s.Bus)   
-            .Include(s => s.Route) 
+            .Include(s => s.Bus)
+            .Include(s => s.Route)
             .FirstOrDefault(x => x.Id == id && x.IsDelete == false);
 
         if (item is null)
@@ -69,11 +69,11 @@ public class SchedulesController : ControllerBase
             ModifiedBy = item.ModifiedBy,
             ModifiedAt = item.ModifiedAt,
 
-           
+
             BusNumber = item.Bus.BusNumber,
             BusType = item.Bus.BusType,
 
-           
+
             DepartureStation = item.Route.DepartureStation,
             ArrivalStation = item.Route.ArrivalStation,
             DistanceKM = item.Route.DistanceKm
@@ -83,16 +83,16 @@ public class SchedulesController : ControllerBase
     }
 
     [HttpGet("search")]
-    public IActionResult SearchSchedules([FromQuery] string from, [FromQuery] string to)
+    public IActionResult SearchSchedules([FromQuery] string? from, [FromQuery] string? to)
     {
         if (string.IsNullOrEmpty(from) || string.IsNullOrEmpty(to))
         {
-            return BadRequest(new { isSuccess = false, message = "Departure (From) နှင့် Arrival (To) နေရာများကို သေချာဖြည့်ပေးပါဗျာ။" });
+            return BadRequest(new ScheduleSearchResponseModel { IsSuccess = false, Message = "Departure (From) နှင့် Arrival (To) နေရာများကို သေချာဖြည့်ပေးပါဗျာ။" });
         }
 
         var searchResult = _db.Schedules
-            .Include(s => s.Bus)   
-            .Include(s => s.Route) 
+            .Include(s => s.Bus)
+            .Include(s => s.Route)
             .Where(s => s.IsDelete == false
                      && s.Route.DepartureStation.Contains(from)
                      && s.Route.ArrivalStation.Contains(to))
@@ -108,7 +108,7 @@ public class SchedulesController : ControllerBase
                 ModifiedBy = x.ModifiedBy,
                 ModifiedAt = x.ModifiedAt,
 
-               
+
                 BusNumber = x.Bus.BusNumber,
                 BusType = x.Bus.BusType,
 
@@ -117,8 +117,17 @@ public class SchedulesController : ControllerBase
                 DistanceKM = x.Route.DistanceKm
             })
             .ToList();
+        if (searchResult == null || !searchResult.Any())
+        {
+            return NotFound(new ScheduleSearchResponseModel
+            {
+                IsSuccess = false,
+                Message = $"စိတ်မကောင်းပါဘူးဗျာ... {from} မှ {to} သို့ သွားမည့် ခရီးစဉ်အချိန်စာရင်း ရှာမတွေ့ပါ သို့မဟုတ် ဖျက်သိမ်းထားပြီး ဖြစ်ပါတယ်ဗျာ။"
+            });
+        }
 
         return Ok(searchResult);
+
     }
 
     [HttpPost]
@@ -183,18 +192,18 @@ public class SchedulesController : ControllerBase
         // }
 
         int seatCount = 1;
-        int currentRowNumber = 1; 
+        int currentRowNumber = 1;
 
         while (seatCount <= bus.TotalSeats)
         {
-            
+
             char rowLetter = (char)('A' + (currentRowNumber - 1));
 
             for (int i = 1; i <= seatsPerRow; i++)
             {
                 if (seatCount > bus.TotalSeats) break;
 
-                string seatNumber = $"{rowLetter}{i}"; 
+                string seatNumber = $"{rowLetter}{i}";
 
                 var newSeat = new Seat
                 {
@@ -209,7 +218,7 @@ public class SchedulesController : ControllerBase
                 seatCount++;
             }
 
-            currentRowNumber++; 
+            currentRowNumber++;
         }
 
         int result = _db.SaveChanges();
@@ -221,7 +230,7 @@ public class SchedulesController : ControllerBase
         });
     }
 
-    
+
     [HttpPut("{id}")]
     public IActionResult UpdateSchedule(Guid id, ScheduleUpdateRequestModel request)
     {
@@ -268,7 +277,7 @@ public class SchedulesController : ControllerBase
         }
     }
 
-    
+
     [HttpPatch("{id}")]
     public IActionResult PatchSchedule(Guid id, SchedulePatchRequestModel request)
     {
@@ -313,7 +322,7 @@ public class SchedulesController : ControllerBase
         });
     }
 
-   
+
     [HttpDelete("{id}")]
     public IActionResult DeleteSchedule(Guid id, ScheduleDeleteRequestModel request)
     {
