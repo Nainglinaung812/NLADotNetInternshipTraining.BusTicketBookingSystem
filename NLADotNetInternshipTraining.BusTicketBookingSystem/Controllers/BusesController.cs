@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using NLADotNetInternshipTraining.BusTicketBookingSystem.Database.AppDbContextModels;
 using NLADotNetInternshipTraining.BusTicketBookingSystem.Models;
 namespace NLADotNetInternshipTraining.BusTicketBookingSystem.Controllers;
+
 [ApiController]
 [Route("api/[controller]")]
 public class BusesController : ControllerBase
@@ -69,8 +70,8 @@ public class BusesController : ControllerBase
         {
             Id = Guid.NewGuid(),
             BusNumber = request.BusNumber,
-            TotalSeats = request.TotalSeats,
             BusType = request.BusType,
+            TotalSeats = request.TotalSeats,
             CreatedBy = request.CreatedBy ?? "Admin-Staff",
             IsDelete = false
         };

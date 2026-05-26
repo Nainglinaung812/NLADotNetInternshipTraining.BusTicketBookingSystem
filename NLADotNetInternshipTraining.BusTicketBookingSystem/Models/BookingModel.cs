@@ -6,6 +6,7 @@ public class BookingModel
     public string CustomerName { get; set; } = null!;
     public string CustomerPhone { get; set; } = null!;
     public decimal TotalPrice { get; set; }
+    public DateTime DepartureTime { get; set; }
     public string? DepartureStation { get; set; }
     public string? ArrivalStation { get; set; }
     public string? BusNumber { get; set; }
